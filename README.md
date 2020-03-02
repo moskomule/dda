@@ -6,11 +6,19 @@ This library is a core of several internal projects and changing APIs daily.
 
 ## Requirements and Installation
 
+### Requirements
+
 ```
 Python>=3.7
 PyTorch>=1.4.0
 torchvision>=0.5
 kornia>=0.2
+```
+
+### Installation
+
+```
+pip install -U git+https://github.com/moskomule/dda
 ```
 
 ## APIs

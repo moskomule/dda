@@ -8,11 +8,17 @@ from typing import Optional
 
 import kornia
 import torch
+from torch.nn import functional as F
 
 from .ste import _ste
 
+__all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip', 'rotate', 'invert', 'solarize',
+           'posterize', 'gray', 'contrast', 'auto_contrast', 'saturate', 'brightness', 'hue', 'sample_pairing',
+           'equalize', 'sharpness']
+
 
 # helper functions
+# helper functions execpt `_shape_check` assumes img is 4D
 def _shape_check(img: torch.Tensor,
                  mag: Optional[torch.Tensor] = None) \
     -> torch.Tensor or (torch.Tensor, torch.Tensor):
@@ -38,12 +44,22 @@ def _gray(img: torch.Tensor) -> torch.Tensor:
 
 
 def _rgb_to_hsv(img: torch.Tensor) -> torch.Tensor:
-    # BCxHW
     return kornia.rgb_to_hsv(img)
 
 
 def _hsv_to_rgb(img: torch.Tensor) -> torch.Tensor:
     return kornia.hsv_to_rgb(img)
+
+
+def _blur(img: torch.Tensor,
+          kernel: torch.Tensor) -> torch.Tensor:
+    assert kernel.ndim == 2
+    c = img.size(1)
+    return F.conv2d(F.pad(img, (1, 1, 1, 1), 'reflect'),
+                    kernel.repeat(c, 1, 1, 1),
+                    padding=0,
+                    stride=1,
+                    groups=c)
 
 
 # Geometric transformation functions
@@ -166,16 +182,6 @@ def hue(img: torch.Tensor,
     return _hsv_to_rgb(torch.cat([_h, s, v], dim=1))
 
 
-def sharpness(img: torch.Tensor,
-              mag: torch.Tensor) -> torch.Tensor:
-    raise NotImplementedError
-
-
-def cutout(img: torch.Tensor,
-           mag: torch.Tensor) -> torch.Tensor:
-    raise NotImplementedError
-
-
 def sample_pairing(img: torch.Tensor,
                    mag: torch.Tensor) -> torch.Tensor:
     indices = torch.randperm(img.size(0), device=img.device, dtype=torch.long)
@@ -203,3 +209,19 @@ def equalize(img: torch.Tensor,
         # to avoid zero-div, add 0.1
         output = (cdf / (step + 0.1)).floor_().view(-1)[shifted.long()].reshape_as(img) / 255
     return _ste(output, img)
+
+
+def sharpness(img: torch.Tensor,
+              mag: torch.Tensor,
+              kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
+    img, mag = _shape_check(img, mag)
+    if kernel is None:
+        kernel = img.new_ones(3, 3)
+        kernel[1, 1] = 5
+        kernel /= 13
+    return _blend_image(img, _blur(img, kernel), mag)
+
+
+def cutout(img: torch.Tensor,
+           mag: torch.Tensor) -> torch.Tensor:
+    raise NotImplementedError

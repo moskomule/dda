@@ -27,7 +27,8 @@ def fs_with_mag():
             functional.saturate,
             functional.brightness,
             functional.hue,
-            functional.sample_pairing]
+            functional.sample_pairing,
+            functional.sharpness]
 
 
 @pytest.fixture
