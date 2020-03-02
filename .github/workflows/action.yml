@@ -1,0 +1,27 @@
+name: pytest
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: install dependencies
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          pip install pillow==6.2.1
+          pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+          pip install -U pytest
+          pip install -U .
+      - name: run test
+        run: |
+          . venv/bin/activate
+          pytest
