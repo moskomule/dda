@@ -9,7 +9,7 @@ from typing import Optional
 import kornia
 import torch
 
-from ste import _ste
+from .ste import _ste
 
 
 # helper functions
