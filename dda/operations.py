@@ -80,11 +80,11 @@ class _Operation(nn.Module):
             mag = torch.randint(2, (input.size(0),), dtype=torch.float32, device=input.device).mul_(2).sub_(1) * mag
 
         if self.training:
-            return mask * self.operation(input, mag) + (1 - mask) * input
+            return (mask * self.operation(input, mag) + (1 - mask) * input).clamp(0, 1)
         else:
             output = input.clone()
             output[mask == 1] = self.operation(output[mask == 1], mag)
-            return output
+            return output.clamp(0, 1)
 
     def get_mask(self,
                  batch_size=None) -> torch.Tensor:
@@ -347,10 +347,11 @@ class Sharpness(_Operation):
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
                  debug: bool = False):
+        # dummy function
+        super(Sharpness, self).__init__(lambda x, y: x, initial_magnitude, initial_probability, magnitude_range,
+                                        probability_range, temperature, debug=debug)
         kernel = torch.ones(3, 3)
         kernel[1, 1] = 5
         kernel /= 13
         self.register_buffer('kernel', kernel)
-        operation = lambda img, mag: sharpness(img, mag, kernel)
-        super(Sharpness, self).__init__(operation, initial_magnitude, initial_probability, magnitude_range,
-                                        probability_range, temperature, debug=debug)
+        self.operation = lambda img, mag: sharpness(img, mag, kernel)
