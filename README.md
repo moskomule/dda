@@ -1,5 +1,7 @@
 # Differentiable Data Augmentation Library
 
+![](https://github.com/moskomule/dda/workflows/pytest/badge.svg)
+
 This library is a core of several internal projects and changing APIs daily.
 
 ## Requirements and Installation
