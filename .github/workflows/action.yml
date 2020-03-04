@@ -7,21 +7,26 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python: ['3.7', '3.8']
+        torch: ['--pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html', 'torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html']
+
     steps:
       - uses: actions/checkout@v1
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
+
       - name: install dependencies
         run: |
           python -m venv venv
           . venv/bin/activate
-          pip install pillow==6.2.1
-          pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+          pip install ${{ matrix.torch }}
           pip install -U pytest
           pip install -U .
-      - name: run test
+
+      - name: run test on ${{ matrix.python }}
         run: |
           . venv/bin/activate
           pytest
