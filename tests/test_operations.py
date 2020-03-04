@@ -10,8 +10,23 @@ def inputs():
 
 
 def test_operations(inputs):
-    for m in [operations.ShearX]:
-        module = m()
+    for module in [operations.ShearX(),
+                   operations.ShearY(),
+                   operations.TranslateY(),
+                   operations.TranslateY(),
+                   operations.Rotate(),
+                   operations.Invert(),
+                   operations.HorizontalFlip(),
+                   operations.Invert(),
+                   operations.Solarize(),
+                   operations.Posterize(),
+                   operations.Contrast(),
+                   operations.Saturate(),
+                   operations.Brightness(),
+                   operations.Sharpness(),
+                   operations.AutoContrast(),
+                   operations.Equalize(),
+                   operations.SamplePairing()]:
         for input in inputs:
             out = module(input)
             out.mean().backward()

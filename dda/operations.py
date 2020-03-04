@@ -1,3 +1,7 @@
+""" Operations
+
+"""
+
 from typing import Optional, Callable, Tuple
 
 import torch
@@ -6,6 +10,7 @@ from torch.distributions import RelaxedBernoulli, Bernoulli
 
 from .functional import (shear_x, shear_y, translate_x, translate_y, hflip, vflip, rotate, invert, solarize, posterize,
                          gray, contrast, auto_contrast, saturate, brightness, hue, sample_pairing, equalize, sharpness)
+from .kernels import get_sharpness_kernel
 
 __all__ = ['ShearX', 'ShearY', 'TranslateX', 'TranslateY', 'HorizontalFlip', 'VerticalFlip', 'Rotate',
            'Invert', 'Solarize', 'Posterize', 'Gray', 'Contrast', 'AutoContrast', 'Saturate', 'Brightness',
@@ -348,10 +353,7 @@ class Sharpness(_Operation):
                  temperature: float = 0.1,
                  debug: bool = False):
         # dummy function
-        super(Sharpness, self).__init__(lambda x, y: x, initial_magnitude, initial_probability, magnitude_range,
+        super(Sharpness, self).__init__(lambda img, mag: sharpness(img, mag, self.kernel), initial_magnitude,
+                                        initial_probability, magnitude_range,
                                         probability_range, temperature, debug=debug)
-        kernel = torch.ones(3, 3)
-        kernel[1, 1] = 5
-        kernel /= 13
-        self.register_buffer('kernel', kernel)
-        self.operation = lambda img, mag: sharpness(img, mag, kernel)
+        self.register_buffer('kernel', get_sharpness_kernel())

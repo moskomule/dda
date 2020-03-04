@@ -1,7 +1,7 @@
-"""
-`functional` contains deterministic functions
+""" `functional` contains deterministic functions
 img image tensor `img` is expected to be CxHxW or BxCxHxW and its range should be [0, 1]
 `mag=0` expects no transformation
+
 """
 
 from typing import Optional
@@ -10,6 +10,7 @@ import kornia
 import torch
 from torch.nn import functional as F
 
+from .kernels import get_sharpness_kernel
 from .ste import _ste
 
 __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip', 'rotate', 'invert', 'solarize',
@@ -216,9 +217,7 @@ def sharpness(img: torch.Tensor,
               kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
     img, mag = _shape_check(img, mag)
     if kernel is None:
-        kernel = img.new_ones(3, 3)
-        kernel[1, 1] = 5
-        kernel /= 13
+        kernel = get_sharpness_kernel(img.device)
     return _blend_image(img, _blur(img, kernel), mag)
 
 

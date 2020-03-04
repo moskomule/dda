@@ -33,6 +33,8 @@ def operation(img: torch.Tensor,
     ...
 ```
 
+As introduced in Faster AutoAugment, some operations use straight-through estimator for magnitude parameters.
+
 ### `dda.operations`
 
 ```python
@@ -62,6 +64,8 @@ To differentiate w.r.t. the probability parameter, `RelaxedBernoulli` is used.
 ### Faster AutoAugment
 
 Coming soon.
+
+## Citation
 
 ```bibtex
 @article{hataya2019,
