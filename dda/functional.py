@@ -23,15 +23,20 @@ __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip',
 # helper functions execpt `_shape_check` assumes img is 4D
 def tensor_function(func):
     @functools.wraps(func)
-    def inner(img: torch.Tensor,
-              mag: Optional[torch.Tensor] = None):
+    def inner(*args):
+        if len(args) == 2:
+            img, mag = args
+        else:
+            img, mag, kernel = args
         if not torch.is_tensor(img):
             raise RuntimeError(f'img is expected to be torch.Tensor, but got {type(img)} instead')
         if img.dim() == 3:
             img = img.unsqueeze(0)
         if torch.is_tensor(mag) and mag.nelement() != 1 and mag.size(0) != img.size(0):
             raise RuntimeError('Shape of `mag` is expected to be `1` or `B`')
-        return func(img, mag).clamp_(0, 1)
+
+        out = func(img, mag) if len(args) == 2 else func(img, mag, kernel)
+        return out.clamp_(0, 1)
 
     return inner
 
