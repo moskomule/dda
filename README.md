@@ -13,6 +13,7 @@ Python>=3.7
 PyTorch>=1.4.0
 torchvision>=0.5
 kornia>=0.2
+hydra>=0.11 # to run examples
 ```
 
 ### Installation
@@ -32,6 +33,8 @@ def operation(img: torch.Tensor,
               mag: Optional[torch.Tensor]) -> torch.Tensor:
     ...
 ```
+
+`dda.pil` contains the similar APIs using PIL.
 
 As introduced in Faster AutoAugment, some operations use straight-through estimator for magnitude parameters.
 
@@ -59,11 +62,19 @@ For example, `dda.operations.Rotation` has `magnitude_range=[0, 1]` and `magnitu
 
 To differentiate w.r.t. the probability parameter, `RelaxedBernoulli` is used.
 
-## Projects
+## Examples
+
+Examples directory will contain the following implementations:
 
 ### Faster AutoAugment
 
 Coming soon.
+
+### RandAugment (wihtout using differentiable data augmentation)
+
+Coming soon.
+
+
 
 ## Citation
 

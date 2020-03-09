@@ -73,6 +73,12 @@ class _Operation(nn.Module):
 
     def forward(self,
                 input: torch.Tensor) -> torch.Tensor:
+        """
+
+        :param input: torch.Tensor in [0, 1]
+        :return: torch.Tensor in [0, 1]
+        """
+
         if self.debug:
             if (input < 0 or input > 1).any():
                 raise RuntimeError('Range of `img` is expected to be [0, 1]')

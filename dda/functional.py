@@ -4,6 +4,7 @@ img image tensor `img` is expected to be CxHxW or BxCxHxW and its range should b
 
 """
 
+import functools
 from typing import Optional
 
 import kornia
@@ -20,23 +21,26 @@ __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip',
 
 # helper functions
 # helper functions execpt `_shape_check` assumes img is 4D
-def _shape_check(img: torch.Tensor,
-                 mag: Optional[torch.Tensor] = None) \
-    -> torch.Tensor or (torch.Tensor, torch.Tensor):
-    if img.dim() == 3:
-        img.unsqueeze(0)
-    if mag is None:
-        return img
-    if mag.nelement() != 1 and mag.size(0) != img.size(0):
-        raise RuntimeError('Shape of `mag` is expected to be `1` or `B`')
-    return img, mag
+def tensor_function(func):
+    @functools.wraps(func)
+    def inner(img: torch.Tensor,
+              mag: Optional[torch.Tensor] = None):
+        if not torch.is_tensor(img):
+            raise RuntimeError(f'img is expected to be torch.Tensor, but got {type(img)} instead')
+        if img.dim() == 3:
+            img = img.unsqueeze(0)
+        if torch.is_tensor(mag) and mag.nelement() != 1 and mag.size(0) != img.size(0):
+            raise RuntimeError('Shape of `mag` is expected to be `1` or `B`')
+        return func(img, mag).clamp_(0, 1)
+
+    return inner
 
 
 def _blend_image(img1: torch.Tensor,
                  img2: torch.Tensor,
                  alpha: torch.Tensor):
     alpha = alpha.view(-1, 1, 1, 1)
-    return ((1 - alpha) * img1 + alpha * img2).clamp_(0, 1)
+    return ((1 - alpha) * img1 + alpha * img2)
 
 
 def _gray(img: torch.Tensor) -> torch.Tensor:
@@ -64,90 +68,90 @@ def _blur(img: torch.Tensor,
 
 
 # Geometric transformation functions
-
+@tensor_function
 def shear_x(img: torch.Tensor,
             mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = torch.stack([mag, torch.zeros_like(mag)], dim=1)
     return kornia.shear(img, mag)
 
 
+@tensor_function
 def shear_y(img: torch.Tensor,
             mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = torch.stack([torch.zeros_like(mag), mag], dim=1)
     return kornia.shear(img, mag)
 
 
+@tensor_function
 def translate_x(img: torch.Tensor,
                 mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = torch.stack([mag, torch.zeros_like(mag)], dim=1)
     return kornia.translate(img, mag)
 
 
+@tensor_function
 def translate_y(img: torch.Tensor,
                 mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = torch.stack([torch.zeros_like(mag), mag], dim=1)
     return kornia.translate(img, mag)
 
 
+@tensor_function
 def hflip(img: torch.Tensor,
           _=None) -> torch.Tensor:
-    img = _shape_check(img)
     return img.flip(dims=[2])
 
 
+@tensor_function
 def vflip(img: torch.Tensor,
           _=None) -> torch.Tensor:
-    img = _shape_check(img)
     return img.flip(dims=[3])
 
 
+@tensor_function
 def rotate(img: torch.Tensor,
            mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     return kornia.rotate(img, mag)
 
 
 # Color transformation functions
 
-
+@tensor_function
 def invert(img: torch.Tensor,
            _=None) -> torch.Tensor:
-    img = _shape_check(img)
     return 1 - img
 
 
+@tensor_function
 def solarize(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = mag.view(-1, 1, 1, 1)
     mask = (img < mag).float()
     return _ste(mask * img + (1 - mask) * (1 - img), mag)
 
 
+@tensor_function
 def posterize(img: torch.Tensor,
               mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     mag = mag.view(-1, 1, 1, 1)
     mask = ~(2 ** (1 - mag).mul_(8).floor().long() - 1)
     return _ste((img.long() & mask).float(), mag)
 
 
+@tensor_function
 def gray(img: torch.Tensor,
          _=None) -> torch.Tensor:
-    img = _shape_check(img)
     return _gray(img).repeat(1, 3, 1, 1)
 
 
+@tensor_function
 def contrast(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     mean = _gray(img * 255).flatten(1).mean(dim=1).add_(0.5).floor_().view(-1, 1, 1, 1) / 255
     return _blend_image(img, mean, mag)
 
 
+@tensor_function
 def auto_contrast(img: torch.Tensor,
                   _=None) -> torch.Tensor:
     with torch.no_grad():
@@ -161,34 +165,36 @@ def auto_contrast(img: torch.Tensor,
     return _ste(output, img)
 
 
+@tensor_function
 def saturate(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     # a.k.a. color
-    img, mag = _shape_check(img, mag)
     return _blend_image(img, _gray(img), mag)
 
 
+@tensor_function
 def brightness(img: torch.Tensor,
                mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     return _blend_image(img, torch.zeros_like(img), mag)
 
 
+@tensor_function
 def hue(img: torch.Tensor,
         mag: torch.Tensor) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     h, s, v = _rgb_to_hsv(img).chunk(3, dim=1)
     mag = mag.view(-1, 1, 1, 1)
     _h = (h + mag) % 1
     return _hsv_to_rgb(torch.cat([_h, s, v], dim=1))
 
 
+@tensor_function
 def sample_pairing(img: torch.Tensor,
                    mag: torch.Tensor) -> torch.Tensor:
     indices = torch.randperm(img.size(0), device=img.device, dtype=torch.long)
     return _blend_image(img, img[indices], mag)
 
 
+@tensor_function
 def equalize(img: torch.Tensor,
              _=None) -> torch.Tensor:
     # see https://github.com/python-pillow/Pillow/blob/master/src/PIL/ImageOps.py#L319
@@ -212,15 +218,16 @@ def equalize(img: torch.Tensor,
     return _ste(output, img)
 
 
+@tensor_function
 def sharpness(img: torch.Tensor,
               mag: torch.Tensor,
               kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
-    img, mag = _shape_check(img, mag)
     if kernel is None:
         kernel = get_sharpness_kernel(img.device)
     return _blend_image(img, _blur(img, kernel), mag)
 
 
+@tensor_function
 def cutout(img: torch.Tensor,
            mag: torch.Tensor) -> torch.Tensor:
     raise NotImplementedError
