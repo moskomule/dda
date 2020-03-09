@@ -90,7 +90,7 @@ def solarize(img: PILImage,
 @pil_function
 def posterize(img: PILImage,
               v: float) -> PILImage:
-    return ImageOps.posterize(img, v)
+    return ImageOps.posterize(img, int(v))
 
 
 @pil_function
