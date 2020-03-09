@@ -50,4 +50,4 @@ def test_function_with_magnitude(fs_with_mag, inputs, vs):
 def test_function_without_magnitude(fs_without_mag, inputs):
     for f in fs_without_mag:
         for input in inputs:
-            f(input)
+            f(input, None)
