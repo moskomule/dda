@@ -127,7 +127,7 @@ class _Operation(nn.Module):
         if self.magnitude is not None:
             mag_state = 'frozen' if self.magnitude_range is None else 'learnable'
             s += f"  magnitude={self.magnitude.item():.3f} ({mag_state}),\n"
-        s += f" temperature={self.temprature.item():.3f})"
+        s += f" temperature={self.temperature.item():.3f})"
         return s
 
 
