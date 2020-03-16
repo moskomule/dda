@@ -72,7 +72,9 @@ Coming soon.
 
 ### RandAugment (wihtout using differentiable data augmentation)
 
-Coming soon.
+```shell script
+python main.py augment=randaugmnet
+```
 
 
 
