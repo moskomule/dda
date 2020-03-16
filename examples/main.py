@@ -13,7 +13,7 @@ def train_and_eval(cfg):
                                                                         cfg.data.val_size,
                                                                         cfg.data.batch_size,
                                                                         cfg.data.download,
-                                                                        cfg.augment,
+                                                                        getattr(cfg, 'augment', None),
                                                                         False)
     model = get_model(cfg.model.name, num_classes)
     optimizer = optim.SGD(cfg.optim.model.lr, momentum=0.9, weight_decay=cfg.optim.model.weight_decay)

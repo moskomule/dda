@@ -1,6 +1,7 @@
 import shutil
 from copy import deepcopy
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import torch
@@ -78,7 +79,7 @@ def get_dataloader(name: str,
                    val_size: int,
                    batch_size: int,
                    download: bool,
-                   augment: OmegaConf,
+                   augment: Optional[OmegaConf],
                    skip_normalize: bool) -> (DataLoader, DataLoader, DataLoader, int):
     train_set, val_set, test_set, num_classes = _get_dataset(name, val_size, download, augment, skip_normalize)
     train_loader = DataLoader(train_set, batch_size=batch_size, sampler=RandomSampler(train_set, True),
@@ -91,7 +92,7 @@ def get_dataloader(name: str,
 def _get_dataset(name: str,
                  val_size: int,
                  download: bool,
-                 augment: OmegaConf,
+                 augment: Optional[OmegaConf],
                  skip_normalize: bool) -> (VisionDataset, VisionDataset, VisionDataset, int):
     _datasets = {"cifar10": (CIFAR10, "~/.torch/data/cifar10",
                              [transforms.ToTensor(),
@@ -127,7 +128,7 @@ def _get_dataset(name: str,
     test_set = dset(root, train=False, transform=transforms.Compose(norm_transform), download=download)
     train_set, val_set = _split_dataset(train_set, val_size)
 
-    if augment.name is not None:
+    if augment is not None and hasattr(augment, 'name'):
         if str(augment.name).lower() == 'randaugment':
             data_aug += [RandAugment(augment.num_aug, augment.magnitude)]
         else:
