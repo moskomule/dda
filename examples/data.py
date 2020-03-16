@@ -79,20 +79,20 @@ def get_dataloader(name: str,
                    batch_size: int,
                    download: bool,
                    augment: OmegaConf,
-                   skip_normalize: bool) -> (DataLoader, DataLoader, DataLoader):
-    train_set, val_set, test_set = get_dataset(name, val_size, download, augment, skip_normalize)
+                   skip_normalize: bool) -> (DataLoader, DataLoader, DataLoader, int):
+    train_set, val_set, test_set, num_classes = _get_dataset(name, val_size, download, augment, skip_normalize)
     train_loader = DataLoader(train_set, batch_size=batch_size, sampler=RandomSampler(train_set, True),
                               num_workers=4, pin_memory=True)
     val_loader = DataLoader(val_set, batch_size=2 * batch_size, pin_memory=True)
     test_loader = DataLoader(test_set, batch_size=2 * batch_size, pin_memory=True)
-    return train_loader, val_loader, test_loader
+    return train_loader, val_loader, test_loader, num_classes
 
 
-def get_dataset(name: str,
-                val_size: int,
-                download: bool,
-                augment: OmegaConf,
-                skip_normalize: bool) -> (VisionDataset, VisionDataset, VisionDataset):
+def _get_dataset(name: str,
+                 val_size: int,
+                 download: bool,
+                 augment: OmegaConf,
+                 skip_normalize: bool) -> (VisionDataset, VisionDataset, VisionDataset, int):
     _datasets = {"cifar10": (CIFAR10, "~/.torch/data/cifar10",
                              [transforms.ToTensor(),
                               transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))],
@@ -137,7 +137,7 @@ def get_dataset(name: str,
         norm_transform = norm_transform[:1]
     train_set.transform = transforms.Compose(data_aug + norm_transform)
 
-    return train_set, val_set, test_set
+    return train_set, val_set, test_set, num_cls
 
 
 def _split_dataset(dataset: VisionDataset,

@@ -1,0 +1,4 @@
+augment:
+  name: randaugment
+  num_aug: 1
+  magnitude: 2

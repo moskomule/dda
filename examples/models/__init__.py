@@ -1,3 +1,5 @@
+from torch import nn
+
 from .preresnet import preresnet
 from .pyramidnet import PyramidNet
 from .shakeshake.shake_resnet import ShakeResNet
@@ -35,3 +37,12 @@ def pyramid(num_classes):
 
 def resnet200(num_classes):
     return preresnet.preresnet200b(num_classes=num_classes)
+
+
+def get_model(name: str, num_classes: int) -> nn.Module:
+    name = name.lower()
+    models = {'wrn28_2': wrn28_2,
+              'wrn28_10': wrn28_10,
+              'wrn40_2': wrn40_2,
+              }
+    return models[name](num_classes)

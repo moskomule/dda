@@ -34,7 +34,7 @@ class RandAugment(object):
                 (contrast, 0.1, 1.9),
                 (contrast, 0.1, 1.9),
                 (brightness, 0.1, 1.9),
-                (sharpness, 0.1, 1.9),
+                # (sharpness, 0.1, 1.9),
                 (rotate, 0, 30),
                 (shear_x, 0, 0.3),
                 (shear_y, 0, 0.3),
