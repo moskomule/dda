@@ -140,7 +140,7 @@ class ShearX(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 30,
+                 magnitude_scale: float = 0.3,
                  debug: bool = False):
         super(ShearX, self).__init__(shear_x, initial_magnitude, initial_probability, magnitude_range,
                                      probability_range, temperature, flip_magnitude=True,
@@ -154,7 +154,7 @@ class ShearY(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 30,
+                 magnitude_scale: float = 0.3,
                  debug: bool = False):
         super(ShearY, self).__init__(shear_y, initial_magnitude, initial_probability, magnitude_range,
                                      probability_range, temperature, flip_magnitude=True,
