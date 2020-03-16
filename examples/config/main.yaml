@@ -6,3 +6,16 @@ data:
   val_size: 5_000
   batch_size: 128
   download: false
+
+optim:
+  model:
+    lr: 1e-1
+    weight_decay: 5e-4
+
+  epochs:
+    200
+
+verb: false
+debug: false
+seed: 1
+gpu_id: 0
