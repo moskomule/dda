@@ -1,7 +1,6 @@
 """ `functional` contains deterministic functions
 img image tensor `img` is expected to be CxHxW or BxCxHxW and its range should be [0, 1]
 `mag=0` expects no transformation
-
 """
 
 import functools
@@ -90,14 +89,14 @@ def shear_y(img: torch.Tensor,
 @tensor_function
 def translate_x(img: torch.Tensor,
                 mag: torch.Tensor) -> torch.Tensor:
-    mag = torch.stack([mag, torch.zeros_like(mag)], dim=1)
+    mag = torch.stack([mag * img.size(-1), torch.zeros_like(mag)], dim=1)
     return kornia.translate(img, mag)
 
 
 @tensor_function
 def translate_y(img: torch.Tensor,
                 mag: torch.Tensor) -> torch.Tensor:
-    mag = torch.stack([torch.zeros_like(mag), mag], dim=1)
+    mag = torch.stack([torch.zeros_like(mag), mag * img.size(-2)], dim=1)
     return kornia.translate(img, mag)
 
 

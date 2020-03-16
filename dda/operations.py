@@ -140,7 +140,7 @@ class ShearX(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 0.3,
+                 magnitude_scale: float = 30,
                  debug: bool = False):
         super(ShearX, self).__init__(shear_x, initial_magnitude, initial_probability, magnitude_range,
                                      probability_range, temperature, flip_magnitude=True,
@@ -154,7 +154,7 @@ class ShearY(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 0.3,
+                 magnitude_scale: float = 30,
                  debug: bool = False):
         super(ShearY, self).__init__(shear_y, initial_magnitude, initial_probability, magnitude_range,
                                      probability_range, temperature, flip_magnitude=True,
@@ -277,9 +277,10 @@ class Contrast(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
+                 magnitude_scale: float = 2,
                  debug: bool = False):
         super(Contrast, self).__init__(contrast, initial_magnitude, initial_probability, magnitude_range,
-                                       probability_range, temperature, debug=debug)
+                                       probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
 
 
 class AutoContrast(_Operation):
@@ -299,9 +300,10 @@ class Saturate(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
+                 magnitude_scale: float = 2,
                  debug: bool = False):
         super(Saturate, self).__init__(saturate, initial_magnitude, initial_probability, magnitude_range,
-                                       probability_range, temperature, debug=debug)
+                                       probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
 
 
 class Brightness(_Operation):
@@ -311,9 +313,10 @@ class Brightness(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
+                 magnitude_scale: float = 2,
                  debug: bool = False):
         super(Brightness, self).__init__(brightness, initial_magnitude, initial_probability, magnitude_range,
-                                         probability_range, temperature, debug=debug)
+                                         probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
 
 
 class Hue(_Operation):
@@ -323,9 +326,10 @@ class Hue(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
+                 magnitude_scale: float = 2,
                  debug: bool = False):
         super(Hue, self).__init__(hue, initial_magnitude, initial_probability, magnitude_range,
-                                  probability_range, temperature, debug=debug)
+                                  probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
 
 
 class SamplePairing(_Operation):
@@ -357,9 +361,10 @@ class Sharpness(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
+                 magnitude_scale: float = 2,
                  debug: bool = False):
         # dummy function
         super(Sharpness, self).__init__(lambda img, mag: sharpness(img, mag, self.kernel), initial_magnitude,
                                         initial_probability, magnitude_range,
-                                        probability_range, temperature, debug=debug)
+                                        probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
         self.register_buffer('kernel', get_sharpness_kernel())
