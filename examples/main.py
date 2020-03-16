@@ -12,7 +12,7 @@ def train_and_eval(cfg):
     train_loader, val_loader, test_loader, num_classes = get_dataloader(cfg.data.name,
                                                                         cfg.data.val_size,
                                                                         cfg.data.batch_size,
-                                                                        cfg.data.dowload,
+                                                                        cfg.data.download,
                                                                         cfg.augment,
                                                                         False)
     model = get_model(cfg.model.name, num_classes)
