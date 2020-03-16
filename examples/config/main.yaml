@@ -15,6 +15,9 @@ optim:
   epochs:
     200
 
+model:
+  name: wrn28_2
+
 verb: false
 debug: false
 seed: 1
