@@ -79,9 +79,9 @@ class _Operation(nn.Module):
         :return: torch.Tensor in [0, 1]
         """
 
-        if self.debug:
-            if (input < 0 or input > 1).any():
-                raise RuntimeError('Range of `img` is expected to be [0, 1]')
+        # if self.debug:
+        #     if (input < 0 or input > 1).any():
+        #         raise RuntimeError('Range of `img` is expected to be [0, 1]')
 
         mask = self.get_mask(input.size(0))
         mag = self.magnitude

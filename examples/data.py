@@ -130,6 +130,7 @@ def _get_dataset(name: str,
 
     if augment is not None and hasattr(augment, 'name'):
         if str(augment.name).lower() == 'randaugment':
+            print('Apply randaugment')
             data_aug += [RandAugment(augment.num_aug, augment.magnitude)]
         else:
             raise NotImplementedError
