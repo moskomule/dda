@@ -76,8 +76,6 @@ Coming soon.
 python main.py augment=randaugmnet
 ```
 
-
-
 ## Citation
 
 ```bibtex

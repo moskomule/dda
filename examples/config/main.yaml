@@ -11,6 +11,7 @@ optim:
   model:
     lr: 1e-1
     weight_decay: 5e-4
+    steps: [100, 150]
 
   epochs:
     200

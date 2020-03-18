@@ -48,6 +48,18 @@ class TinyImageNet(ImageFolder):
         return len(self.data)
 
 
+def new_getitem(self,
+                index: int):
+    img, target = self.data[index], int(self.targets[index])
+    img = Image.fromarray(np.transpose(img, (1, 2, 0)))
+    if self.transform is not None:
+        img = self.transform(img)
+    return img, target
+
+
+SVHN.__getitem__ = new_getitem
+
+
 class OriginalSVHN(SVHN):
     def __init__(self,
                  root,
@@ -57,7 +69,6 @@ class OriginalSVHN(SVHN):
                  download=False):
         super(OriginalSVHN, self).__init__(root, split="train" if train else "test", transform=transform,
                                            target_transform=target_transform, download=download)
-        self.data = [Image.fromarray(np.transpose(img, (1, 2, 0))) for img in self.data]
         self.targets = self.labels
 
 

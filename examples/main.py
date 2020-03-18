@@ -17,7 +17,7 @@ def train_and_eval(cfg):
                                                                         False)
     model = get_model(cfg.model.name, num_classes)
     optimizer = optim.SGD(cfg.optim.model.lr, momentum=0.9, weight_decay=cfg.optim.model.weight_decay)
-    scheduler = lr_scheduler.MultiStepLR([100, 150])
+    scheduler = lr_scheduler.MultiStepLR(cfg.optim.model.steps)
     tq = reporters.TQDMReporter(range(cfg.optim.epochs), verb=cfg.verb)
     callback = [callbacks.AccuracyCallback(),
                 callbacks.LossCallback(),
