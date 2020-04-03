@@ -123,11 +123,11 @@ class _Operation(nn.Module):
     def __repr__(self) -> str:
         s = self.__class__.__name__
         prob_state = 'frozen' if self.probability_range is None else 'learnable'
-        s += f"( probability={self.probability.item():.3f} ({prob_state}), \n"
+        s += f"(probability={self.probability.item():.3f} ({prob_state}), \n"
         if self.magnitude is not None:
             mag_state = 'frozen' if self.magnitude_range is None else 'learnable'
-            s += f"  magnitude={self.magnitude.item():.3f} ({mag_state}),\n"
-        s += f" temperature={self.temperature.item():.3f})"
+            s += f"{' ' * len(s)} magnitude={self.magnitude.item():.3f} ({mag_state}),\n"
+        s += f"{' ' * len(s)} temperature={self.temperature.item():.3f})"
         return s
 
 

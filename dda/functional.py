@@ -10,7 +10,7 @@ import kornia
 import torch
 from torch.nn import functional as F
 
-from .kernels import get_sharpness_kernel
+from .kernels import get_sharpness_kernel, get_gaussian_3x3kernel
 from .ste import _ste
 
 __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip', 'rotate', 'invert', 'solarize',
@@ -19,11 +19,15 @@ __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip',
 
 
 # helper functions
-# helper functions execpt `_shape_check` assumes img is 4D
+
 def tensor_function(func):
+    # check if the input is correctly given and clamp the output in [0, 1]
     @functools.wraps(func)
     def inner(*args):
-        if len(args) == 2:
+        if len(args) == 1:
+            img = args[0]
+            mag = None
+        elif len(args) == 2:
             img, mag = args
         else:
             img, mag, kernel = args
@@ -34,7 +38,7 @@ def tensor_function(func):
         if torch.is_tensor(mag) and mag.nelement() != 1 and mag.size(0) != img.size(0):
             raise RuntimeError('Shape of `mag` is expected to be `1` or `B`')
 
-        out = func(img, mag) if len(args) == 2 else func(img, mag, kernel)
+        out = func(img, mag, kernel) if len(args) == 3 else func(img, mag)
         return out.clamp_(0, 1)
 
     return inner
@@ -229,6 +233,15 @@ def sharpness(img: torch.Tensor,
     if kernel is None:
         kernel = get_sharpness_kernel(img.device)
     return _blend_image(img, _blur(img, kernel), mag)
+
+
+@tensor_function
+def gaussian_blur3x3(img: torch.Tensor,
+                     mag: torch.Tensor,
+                     kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
+    if kernel is None:
+        kernel = get_gaussian_3x3kernel(mag, img.device)
+    return _blur(img, kernel)
 
 
 @tensor_function

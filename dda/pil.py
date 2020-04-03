@@ -13,6 +13,7 @@ __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip',
 
 
 def pil_function(func):
+    # check if input is PILImage or not
     @functools.wraps(func)
     def inner(img, v):
         if not isinstance(img, PILImage):
