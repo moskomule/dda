@@ -71,6 +71,10 @@ class _Operation(nn.Module):
         self.magnitude_scale = magnitude_scale
         self.debug = debug
 
+        # to avoid accessing CUDA tensors in multiprocessing env.
+        self._py_magnitude = None
+        self._py_probability = None
+
     def forward(self,
                 input: torch.Tensor) -> torch.Tensor:
         """
@@ -112,21 +116,25 @@ class _Operation(nn.Module):
         mag = self._magnitude
         if self.magnitude_range is not None:
             mag.clamp(*self.magnitude_range)
-        return mag * self.magnitude_scale
+        m = mag * self.magnitude_scale
+        self._py_magnitude = m
+        return m
 
     @property
     def probability(self) -> torch.Tensor:
         if self.probability_range is None:
             return self._probability
-        return self._probability.clamp(*self.probability_range)
+        p = self._probability.clamp(*self.probability_range)
+        self._py_probability = p
+        return p
 
     def __repr__(self) -> str:
         s = self.__class__.__name__
         prob_state = 'frozen' if self.probability_range is None else 'learnable'
-        s += f"(probability={self.probability.item():.3f} ({prob_state}), \n"
+        s += f"(probability={self._py_probability:.3f} ({prob_state}), \n"
         if self.magnitude is not None:
             mag_state = 'frozen' if self.magnitude_range is None else 'learnable'
-            s += f"{' ' * len(s)} magnitude={self.magnitude.item():.3f} ({mag_state}),\n"
+            s += f"{' ' * len(s)} magnitude={self._py_magnitude:.3f} ({mag_state}),\n"
         s += f"{' ' * len(s)} temperature={self.temperature.item():.3f})"
         return s
 
