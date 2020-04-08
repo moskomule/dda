@@ -42,7 +42,7 @@ class _Operation(nn.Module):
                  debug: bool = False):
 
         super(_Operation, self).__init__()
-        self.operation = lambda img, mag: operation(img, mag).clamp_(0, 1)
+        self.operation = operation
 
         self.magnitude_range = None
         if initial_magnitude is None:
