@@ -72,8 +72,8 @@ class _Operation(nn.Module):
         self.debug = debug
 
         # to avoid accessing CUDA tensors in multiprocessing env.
-        self._py_magnitude = None
-        self._py_probability = None
+        self._py_magnitude = initial_magnitude
+        self._py_probability = initial_probability
 
     def forward(self,
                 input: torch.Tensor) -> torch.Tensor:
@@ -117,7 +117,7 @@ class _Operation(nn.Module):
         if self.magnitude_range is not None:
             mag.clamp(*self.magnitude_range)
         m = mag * self.magnitude_scale
-        self._py_magnitude = m
+        self._py_magnitude = m.item()
         return m
 
     @property
@@ -125,7 +125,7 @@ class _Operation(nn.Module):
         if self.probability_range is None:
             return self._probability
         p = self._probability.clamp(*self.probability_range)
-        self._py_probability = p
+        self._py_probability = p.item()
         return p
 
     def __repr__(self) -> str:
