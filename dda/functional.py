@@ -134,16 +134,15 @@ def invert(img: torch.Tensor,
 def solarize(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     mag = mag.view(-1, 1, 1, 1)
-    mask = (img < mag).float()
-    return _ste(mask * img + (1 - mask) * (1 - img), mag)
+    return _ste(torch.where(img < mag, img, 1 - img), mag)
 
 
 @tensor_function
 def posterize(img: torch.Tensor,
               mag: torch.Tensor) -> torch.Tensor:
     mag = mag.view(-1, 1, 1, 1)
-    mask = ~(2 ** (1 - mag).mul_(8).floor().long() - 1)
-    return _ste((img.long() & mask).float(), mag)
+    mask = ~(2 ** mag.mul_(8).floor().long() - 1)
+    return _ste(((255 * img).long() & mask).float() / 255, mag)
 
 
 @tensor_function
@@ -183,7 +182,7 @@ def saturate(img: torch.Tensor,
 @tensor_function
 def brightness(img: torch.Tensor,
                mag: torch.Tensor) -> torch.Tensor:
-    return _blend_image(img, torch.zeros_like(img), mag)
+    return img * (1 - mag)
 
 
 @tensor_function
