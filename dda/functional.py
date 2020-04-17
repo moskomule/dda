@@ -109,13 +109,13 @@ def translate_y(img: torch.Tensor,
 @tensor_function
 def hflip(img: torch.Tensor,
           _=None) -> torch.Tensor:
-    return img.flip(dims=[2])
+    return img.flip(dims=[3])
 
 
 @tensor_function
 def vflip(img: torch.Tensor,
           _=None) -> torch.Tensor:
-    return img.flip(dims=[3])
+    return img.flip(dims=[2])
 
 
 @tensor_function
