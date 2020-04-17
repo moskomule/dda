@@ -115,7 +115,7 @@ class _Operation(nn.Module):
             return None
         mag = self._magnitude
         if self.magnitude_range is not None:
-            mag.clamp(*self.magnitude_range)
+            mag = mag.clamp(*self.magnitude_range)
         m = mag * self.magnitude_scale
         self._py_magnitude = m.item()
         return m
@@ -285,7 +285,7 @@ class Contrast(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 2,
+                 magnitude_scale: float = 1,
                  debug: bool = False):
         super(Contrast, self).__init__(contrast, initial_magnitude, initial_probability, magnitude_range,
                                        probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
@@ -321,7 +321,7 @@ class Brightness(_Operation):
                  magnitude_range: Optional[Tuple[float, float]] = (0, 1),
                  probability_range: Optional[Tuple[float, float]] = (0, 1),
                  temperature: float = 0.1,
-                 magnitude_scale: float = 2,
+                 magnitude_scale: float = 1,
                  debug: bool = False):
         super(Brightness, self).__init__(brightness, initial_magnitude, initial_probability, magnitude_range,
                                          probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)

@@ -47,6 +47,8 @@ def tensor_function(func):
 def _blend_image(img1: torch.Tensor,
                  img2: torch.Tensor,
                  alpha: torch.Tensor):
+    # blend two images
+    # alpha=0 returns the original image
     alpha = alpha.view(-1, 1, 1, 1)
     return ((1 - alpha) * img1 + alpha * img2)
 
@@ -182,7 +184,7 @@ def saturate(img: torch.Tensor,
 @tensor_function
 def brightness(img: torch.Tensor,
                mag: torch.Tensor) -> torch.Tensor:
-    return img * (1 - mag)
+    return _blend_image(img, torch.zeros_like(img), mag)
 
 
 @tensor_function
