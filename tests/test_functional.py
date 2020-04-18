@@ -20,13 +20,11 @@ from dda import functional
                                functional.gaussian_blur3x3]
                          )
 @pytest.mark.parametrize('i', [torch.randint(0, 255, (b, 3, 32, 32), dtype=torch.float32) / 255 for b in [1, 2, 4]])
-@pytest.mark.parametrize('v', [torch.rand(s, requires_grad=True) for s in [1, 2, 4]])
+@pytest.mark.parametrize('v', [torch.rand(s) for s in [1, 2, 4]])
 def test_function_with_magnitude(f, i, v):
-    try:
-        f(i, v).mean().backward()
-    except RuntimeError as e:
-        print(f'function {f.__name__} causes an error')
-        raise e
+    i = i.clone()
+    i.requires_grad_(True)
+    f(i, v).mean().backward()
 
 
 @pytest.mark.parametrize('f', [functional.vflip,
