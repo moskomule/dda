@@ -45,7 +45,11 @@ def fs_without_mag():
 def test_function_with_magnitude(fs_with_mag, inputs, vs):
     for f in fs_with_mag:
         for input, v in zip(inputs, vs):
-            f(input, v).mean().backward()
+            try:
+                f(input, v).mean().backward()
+            except RuntimeError as e:
+                print(f'function {f.__name__} causes an error')
+                raise e
 
 
 def test_function_without_magnitude(fs_without_mag, inputs):
