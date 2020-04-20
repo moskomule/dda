@@ -115,7 +115,7 @@ class _Operation(nn.Module):
             return None
         mag = self._magnitude
         if self.magnitude_range is not None:
-            mag = mag.clamp_(*self.magnitude_range)
+            mag = mag.clamp(*self.magnitude_range)
         m = mag * self.magnitude_scale
         self._py_magnitude = m.item()
         return m
@@ -124,7 +124,7 @@ class _Operation(nn.Module):
     def probability(self) -> torch.Tensor:
         if self.probability_range is None:
             return self._probability
-        p = self._probability.clamp_(*self.probability_range)
+        p = self._probability.clamp(*self.probability_range)
         self._py_probability = p.item()
         return p
 
