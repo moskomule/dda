@@ -31,7 +31,7 @@ class _Operation(nn.Module):
     """
 
     def __init__(self,
-                 operation: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+                 operation: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]],
                  initial_magnitude: Optional[float] = None,
                  initial_probability: float = 0.5,
                  magnitude_range: Optional[Tuple[float, float]] = None,
@@ -362,7 +362,32 @@ class Equalize(_Operation):
                                        probability_range, temperature, debug=debug)
 
 
-class Sharpness(_Operation):
+class _KernelOperation(_Operation):
+    def __init__(self,
+                 operation: Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor],
+                 kernel: torch.Tensor,
+                 initial_magnitude: float = 0.5,
+                 initial_probability: float = 0.5,
+                 magnitude_range: Optional[Tuple[float, float]] = (0, 1),
+                 probability_range: Optional[Tuple[float, float]] = (0, 1),
+                 temperature: float = 0.1,
+                 magnitude_scale: float = 1,
+                 debug: bool = False
+                 ):
+        super(_KernelOperation, self).__init__(None, initial_magnitude,
+                                               initial_probability, magnitude_range,
+                                               probability_range, temperature, magnitude_scale=magnitude_scale,
+                                               debug=debug)
+        self.register_buffer('kernel', kernel)
+
+        def _operation(img: torch.Tensor,
+                       mag: torch.Tensor) -> torch.Tensor:
+            return operation(img, mag, self.kernel)
+
+        self.operation = _operation
+
+
+class Sharpness(_KernelOperation):
     def __init__(self,
                  initial_magnitude: float = 0.5,
                  initial_probability: float = 0.5,
@@ -371,8 +396,6 @@ class Sharpness(_Operation):
                  temperature: float = 0.1,
                  magnitude_scale: float = 2,
                  debug: bool = False):
-        # dummy function
-        super(Sharpness, self).__init__(lambda img, mag: sharpness(img, mag, self.kernel), initial_magnitude,
-                                        initial_probability, magnitude_range,
-                                        probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
-        self.register_buffer('kernel', get_sharpness_kernel())
+        super(Sharpness, self).__init__(sharpness, get_sharpness_kernel(), initial_magnitude, initial_probability,
+                                        magnitude_range, probability_range, temperature,
+                                        magnitude_scale=magnitude_scale, debug=debug)
