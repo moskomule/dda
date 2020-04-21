@@ -378,13 +378,16 @@ class _KernelOperation(_Operation):
                                                initial_probability, magnitude_range,
                                                probability_range, temperature, magnitude_scale=magnitude_scale,
                                                debug=debug)
+
+        # to use kernel properly, this is an ugly way...
         self.register_buffer('kernel', kernel)
+        self._original_operation = operation
+        self.operation = self._operation
 
-        def _operation(img: torch.Tensor,
-                       mag: torch.Tensor) -> torch.Tensor:
-            return operation(img, mag, self.kernel)
-
-        self.operation = _operation
+    def _operation(self,
+                   img: torch.Tensor,
+                   mag: torch.Tensor) -> torch.Tensor:
+        return self._original_operation(img, mag, self.kernel)
 
 
 class Sharpness(_KernelOperation):
