@@ -2,7 +2,6 @@
 
 """
 
-from functools import partial
 from typing import Optional, Callable, Tuple
 
 import torch
@@ -373,7 +372,7 @@ class Sharpness(_Operation):
                  magnitude_scale: float = 2,
                  debug: bool = False):
         # dummy function
-        super(Sharpness, self).__init__(partial(sharpness, kernel=self.kernel), initial_magnitude,
+        super(Sharpness, self).__init__(lambda img, mag: sharpness(img, mag, self.kernel), initial_magnitude,
                                         initial_probability, magnitude_range,
                                         probability_range, temperature, magnitude_scale=magnitude_scale, debug=debug)
         self.register_buffer('kernel', get_sharpness_kernel())
