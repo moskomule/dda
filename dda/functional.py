@@ -81,9 +81,9 @@ def _blend_image(img1: torch.Tensor,
                  img2: torch.Tensor,
                  alpha: torch.Tensor):
     # blend two images
-    # alpha=0 returns the original image
+    # alpha=1 returns the original image (img1)
     alpha = alpha.view(-1, 1, 1, 1)
-    return ((1 - alpha) * img1 + alpha * img2)
+    return (img2 + alpha * (img1 - img2)).clamp(0, 1)
 
 
 def _gray(img: torch.Tensor) -> torch.Tensor:
@@ -175,9 +175,12 @@ def solarize(img: torch.Tensor,
 @tensor_function
 def posterize(img: torch.Tensor,
               mag: torch.Tensor) -> torch.Tensor:
+    # mag: 0 to 1
     mag = mag.view(-1, 1, 1, 1)
-    mask = ~(2 ** mag.mul(8).floor().long() - 1)
-    return ste(((255 * img).long() & mask).float() / 255, mag)
+    with torch.no_grad():
+        shift = ((1 - mag) * 8).long()
+        shifted = (img.mul(255).long() << shift) >> shift
+    return ste(shifted.float() / 255, mag)
 
 
 @tensor_function
@@ -190,7 +193,7 @@ def gray(img: torch.Tensor,
 def contrast(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     mean = _gray(img * 255).flatten(1).mean(dim=1).add(0.5).floor().view(-1, 1, 1, 1) / 255
-    return _blend_image(img, mean, mag)
+    return _blend_image(img, mean, 1 - mag)
 
 
 @tensor_function
@@ -211,13 +214,14 @@ def auto_contrast(img: torch.Tensor,
 def saturate(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     # a.k.a. color
-    return _blend_image(img, _gray(img), mag)
+    return _blend_image(img, _gray(img), 1 - mag)
 
 
 @tensor_function
 def brightness(img: torch.Tensor,
                mag: torch.Tensor) -> torch.Tensor:
-    return _blend_image(img, torch.zeros_like(img), mag)
+    # mag: -1 to 1
+    return _blend_image(img, torch.zeros_like(img), 1 - mag)
 
 
 @tensor_function
@@ -233,7 +237,8 @@ def hue(img: torch.Tensor,
 def sample_pairing(img: torch.Tensor,
                    mag: torch.Tensor) -> torch.Tensor:
     indices = torch.randperm(img.size(0), device=img.device, dtype=torch.long)
-    return _blend_image(img, img[indices], mag)
+    mag = mag.view(-1, 1, 1, 1)
+    return (1 - mag) * img + mag * img[indices]
 
 
 @tensor_function
@@ -266,7 +271,7 @@ def sharpness(img: torch.Tensor,
               kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
     if kernel is None:
         kernel = get_sharpness_kernel(img.device)
-    return _blend_image(img, _blur(img, kernel), mag)
+    return _blend_image(img, _blur(img, kernel), 1 - mag)
 
 
 @tensor_function
