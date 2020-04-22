@@ -50,7 +50,7 @@ def ste(input_forward: torch.Tensor,
     :return:
     """
 
-    return _STE.apply(input_forward, input_backward).clone()
+    return _STE.apply(input_forward, input_backward)
 
 
 def tensor_function(func):
@@ -176,7 +176,7 @@ def solarize(img: torch.Tensor,
 def posterize(img: torch.Tensor,
               mag: torch.Tensor) -> torch.Tensor:
     mag = mag.view(-1, 1, 1, 1)
-    mask = ~(2 ** mag.mul_(8).floor().long() - 1)
+    mask = ~(2 ** mag.mul(8).floor().long() - 1)
     return ste(((255 * img).long() & mask).float() / 255, mag)
 
 
@@ -189,7 +189,7 @@ def gray(img: torch.Tensor,
 @tensor_function
 def contrast(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
-    mean = _gray(img * 255).flatten(1).mean(dim=1).add_(0.5).floor_().view(-1, 1, 1, 1) / 255
+    mean = _gray(img * 255).flatten(1).mean(dim=1).add(0.5).floor().view(-1, 1, 1, 1) / 255
     return _blend_image(img, mean, mag)
 
 
@@ -203,7 +203,7 @@ def auto_contrast(img: torch.Tensor,
         min, _ = reshaped.min(dim=1, keepdim=True)
         max, _ = reshaped.max(dim=1, keepdim=True)
         output = (torch.arange(256, device=img.device, dtype=img.dtype) - min) * (255 / (max - min + 0.1))
-        output = output.floor_().gather(1, reshaped.long()).reshape_as(img) / 255
+        output = output.floor().gather(1, reshaped.long()).reshape_as(img) / 255
     return ste(output, img)
 
 
