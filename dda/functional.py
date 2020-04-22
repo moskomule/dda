@@ -7,18 +7,51 @@ import functools
 from typing import Optional
 
 import kornia
-import torch
 from torch.nn import functional as F
 
 from .kernels import get_sharpness_kernel, get_gaussian_3x3kernel
-from .ste import _ste
 
 __all__ = ['shear_x', 'shear_y', 'translate_x', 'translate_y', 'hflip', 'vflip', 'rotate', 'invert', 'solarize',
            'posterize', 'gray', 'contrast', 'auto_contrast', 'saturate', 'brightness', 'hue', 'sample_pairing',
            'equalize', 'sharpness']
 
-
 # helper functions
+
+from typing import Tuple
+
+import torch
+from torch.autograd import Function
+
+
+class _STE(Function):
+    """ StraightThrough Estimator
+
+    """
+
+    @staticmethod
+    def forward(ctx,
+                input_forward: torch.Tensor,
+                input_backward: torch.Tensor) -> torch.Tensor:
+        ctx.shape = input_backward.shape
+        return input_forward
+
+    @staticmethod
+    def backward(ctx,
+                 grad_in: torch.Tensor) -> Tuple[None, torch.Tensor]:
+        return None, grad_in.sum_to_size(ctx.shape)
+
+
+def ste(input_forward: torch.Tensor,
+        input_backward: torch.Tensor) -> torch.Tensor:
+    """ Straight-through estimator
+
+    :param input_forward:
+    :param input_backward:
+    :return:
+    """
+
+    return _STE.apply(input_forward, input_backward).clone()
+
 
 def tensor_function(func):
     # check if the input is correctly given and clamp the output in [0, 1]
@@ -136,7 +169,7 @@ def invert(img: torch.Tensor,
 def solarize(img: torch.Tensor,
              mag: torch.Tensor) -> torch.Tensor:
     mag = mag.view(-1, 1, 1, 1)
-    return _ste(torch.where(img < mag, img, 1 - img), mag)
+    return ste(torch.where(img < mag, img, 1 - img), mag)
 
 
 @tensor_function
@@ -144,7 +177,7 @@ def posterize(img: torch.Tensor,
               mag: torch.Tensor) -> torch.Tensor:
     mag = mag.view(-1, 1, 1, 1)
     mask = ~(2 ** mag.mul_(8).floor().long() - 1)
-    return _ste(((255 * img).long() & mask).float() / 255, mag)
+    return ste(((255 * img).long() & mask).float() / 255, mag)
 
 
 @tensor_function
@@ -171,7 +204,7 @@ def auto_contrast(img: torch.Tensor,
         max, _ = reshaped.max(dim=1, keepdim=True)
         output = (torch.arange(256, device=img.device, dtype=img.dtype) - min) * (255 / (max - min + 0.1))
         output = output.floor_().gather(1, reshaped.long()).reshape_as(img) / 255
-    return _ste(output, img)
+    return ste(output, img)
 
 
 @tensor_function
@@ -224,7 +257,7 @@ def equalize(img: torch.Tensor,
         cdf = torch.cat([cdf.new_zeros((cdf.size(0), 1)), cdf], dim=1)[:, :256] + (step / 2).floor_()
         # to avoid zero-div, add 0.1
         output = (cdf / (step + 0.1)).floor_().view(-1)[shifted.long()].reshape_as(img) / 255
-    return _ste(output, img)
+    return ste(output, img)
 
 
 @tensor_function
