@@ -50,7 +50,7 @@ def ste(input_forward: torch.Tensor,
     :return:
     """
 
-    return _STE.apply(input_forward, input_backward)
+    return _STE.apply(input_forward, input_backward).clone()
 
 
 def tensor_function(func):
