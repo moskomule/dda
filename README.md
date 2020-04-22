@@ -9,9 +9,9 @@ This library is a core of several internal projects and changing APIs daily.
 ### Requirements
 
 ```
-Python>=3.7
-PyTorch>=1.4.0
-torchvision>=0.5
+Python>=3.8
+PyTorch>=1.5.0
+torchvision>=0.6
 kornia>=0.2
 hydra>=0.11 # to run examples
 ```
