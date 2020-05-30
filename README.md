@@ -26,7 +26,7 @@ pip install -U git+https://github.com/moskomule/dda
 
 ### `dda.functional`
 
-Basic operations that can be differentiable w.r.t. the magnitude parameter `mag`.
+Basic operations that can be differentiable w.r.t. the magnitude parameter `mag`. `mag=0` is easy and `mag=1` or `mag=-1` are difficult.
 
 ```python
 def operation(img: torch.Tensor,
