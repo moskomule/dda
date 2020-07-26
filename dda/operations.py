@@ -14,7 +14,7 @@ from .kernels import get_sharpness_kernel
 
 __all__ = ['ShearX', 'ShearY', 'TranslateX', 'TranslateY', 'HorizontalFlip', 'VerticalFlip', 'Rotate',
            'Invert', 'Solarize', 'Posterize', 'Gray', 'Contrast', 'AutoContrast', 'Saturate', 'Brightness',
-           'Hue', 'SamplePairing', 'Equalize']
+           'Hue', 'SamplePairing', 'Equalize', 'Sharpness']
 
 
 class _Operation(nn.Module):
@@ -83,10 +83,6 @@ class _Operation(nn.Module):
         :return: torch.Tensor in [0, 1]
         """
 
-        # if self.debug:
-        #     if (input < 0 or input > 1).any():
-        #         raise RuntimeError('Range of `img` is expected to be [0, 1]')
-
         mask = self.get_mask(input.size(0))
         mag = self.magnitude
 
@@ -95,10 +91,18 @@ class _Operation(nn.Module):
             mag = torch.randint(2, (input.size(0),), dtype=torch.float32, device=input.device).mul_(2).sub_(1) * mag
 
         if self.training:
-            return (mask * self.operation(input, mag) + (1 - mask) * input).clamp(0, 1)
+            return (mask * self.operation(input, mag) + (1 - mask) * input).clamp_(0, 1)
         else:
-            output = input.clone()
-            output[mask == 1] = self.operation(output[mask == 1], mag)
+            mask.squeeze_()
+            output = input
+            num_valid = mask.sum().long()
+            if torch.is_tensor(mag):
+                if mag.size(0) == 1:
+                    mag = mag.repeat(num_valid)
+                else:
+                    mag = mag[mask == 1]
+            if num_valid > 0:
+                output[mask == 1, ...] = self.operation(output[mask == 1, ...], mag)
             return output.clamp(0, 1)
 
     def get_mask(self,
