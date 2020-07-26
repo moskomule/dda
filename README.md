@@ -2,7 +2,7 @@
 
 ![](https://github.com/moskomule/dda/workflows/pytest/badge.svg)
 
-This library is a core of several internal projects and changing APIs daily.
+This library is a core of Faster AutoAugment and its descendants. This library is research oriented, and its AIP may change in the near future.
 
 ## Requirements and Installation
 
@@ -13,7 +13,6 @@ Python>=3.8
 PyTorch>=1.5.0
 torchvision>=0.6
 kornia>=0.2
-hydra>=0.11 # to run examples
 ```
 
 ### Installation
@@ -26,7 +25,7 @@ pip install -U git+https://github.com/moskomule/dda
 
 ### `dda.functional`
 
-Basic operations that can be differentiable w.r.t. the magnitude parameter `mag`. `mag=0` is easy and `mag=1` or `mag=-1` are difficult.
+Basic operations that can be differentiable w.r.t. the magnitude parameter `mag`. When `mag=0`, no augmentation is applied, and when `mag=1` (and `mag=-1` if it exists), the severest augmentation is applied. As introduced in Faster AutoAugment, some operations use straight-through estimator to be differentiated w.r.t. their magnitude parameters.
 
 ```python
 def operation(img: torch.Tensor,
@@ -34,9 +33,8 @@ def operation(img: torch.Tensor,
     ...
 ```
 
-`dda.pil` contains the similar APIs using PIL.
+`dda.pil` contains the similar APIs using PIL (not differentiable).
 
-As introduced in Faster AutoAugment, some operations use straight-through estimator for magnitude parameters.
 
 ### `dda.operations`
 
@@ -66,24 +64,26 @@ To differentiate w.r.t. the probability parameter, `RelaxedBernoulli` is used.
 
 Examples directory will contain the following implementations:
 
-### Faster AutoAugment
-
-Coming soon.
-
-### RandAugment (wihtout using differentiable data augmentation)
-
-```shell script
-python main.py augment=randaugmnet
-```
+- [ ] Faster AutoAugment
+- [ ] MADAO
 
 ## Citation
 
+`dda` (except RandAugment) is developed as a core library of the following research projects. 
+
+If you use `dda` in your academic research, please cite `hataya2020a`.
+
 ```bibtex
-@article{hataya2019,
+@inproceesings{hataya2020a,
     title={{Faster AutoAugment: Learning Augmentation Strategies using Backpropagation}},
     author={Ryuichiro Hataya and Jan Zdenek and Kazuki Yoshizoe and Hideki Nakayama},
-    year={2019},
-    eprint={1911.06987},
-    archivePrefix={arXiv},
+    year={2020},
+    booktitle={ECCV}
+}
+
+@article{hataya2020b,
+    title={{Meta Approach to Data Augmentation Optimization}},
+    author={Ryuichiro Hataya and Jan Zdenek and Kazuki Yoshizoe and Hideki Nakayama},
+    year={2020}
 }
 ```
