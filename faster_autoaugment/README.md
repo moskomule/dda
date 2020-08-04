@@ -27,8 +27,10 @@ This script will save the obtained policy at `policy_weight/DATASET_NAME/EPOCH.p
 ### Train
 
 ```
-python train.py [path=PATH_TO_POLICY_WEIGHT] [data.name={cifar10,cifar100,svhn}] [model.name={wrn28_2,wrn40_2,wrn28_10}]  [...]
+python train.py path=PATH_TO_POLICY_WEIGHT [data.name={cifar10,cifar100,svhn}] [model.name={wrn28_2,wrn40_2,wrn28_10}]  [...]
 ```
+
+When `path` is not specified, training is executed without policy, which can be used as a baseline.
 
 ## Notice
 
