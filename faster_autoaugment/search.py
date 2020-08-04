@@ -6,12 +6,12 @@ import homura
 import hydra
 import torch
 from homura import trainers, TensorMap, optim, callbacks
-from homura.vision import DATASET_REGISTRY, MODEL_REGISTRY
+from homura.vision import DATASET_REGISTRY
 from torch import nn, Tensor
 from torch.nn import functional as F
 
 from policy import Policy
-from utils import Config
+from utils import Config, MODEL_REGISTRY
 
 
 class Discriminator(nn.Module):

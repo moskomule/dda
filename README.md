@@ -62,9 +62,8 @@ To differentiate w.r.t. the probability parameter, `RelaxedBernoulli` is used.
 
 ## Examples
 
-Examples directory will contain the following implementations:
-
-- Faster AutoAugment
+* [Faster AutoAugment](./faster_autoaugment)
+* [RandAugment](./examples)
 
 ## Citation
 

@@ -1,9 +1,10 @@
 model:
   cls_factor: 0.1
   gp_factor: 10
-  temperature: 0.1
+
+  temperature: 0.05
   num_sub_policies: 10
-  num_chunks: 16
+  num_chunks: 8
   operation_count: 2
 
 data:
@@ -15,10 +16,10 @@ data:
   download: false
 
 optim:
-  epochs:  30
+  epochs:  20
 
-  main_lr: 1e-4
-  policy_lr: 1e-4
+  main_lr: 1e-3
+  policy_lr: 1e-3
 
 gpu: 0
 seed: 1

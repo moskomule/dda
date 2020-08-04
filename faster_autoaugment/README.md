@@ -1,6 +1,6 @@
 # Faster AutoAugment
 
-This is the official *re*implementation of FasterAutoAugment [hataya2020a](https://arxiv.org/abs/1911.06987).
+This is the official *re*implementation of FasterAutoAugment ([hataya2020a](https://arxiv.org/abs/1911.06987).)
 
 ## Requirements
 
@@ -27,12 +27,16 @@ This script will save the obtained policy at `policy_weight/DATASET_NAME/EPOCH.p
 ### Train
 
 ```
-python train.py [path=PATH_TO_POLICY_WEIGHT] [data.name={cifar10,cifar100,svhn}] [model.name={wrn28_2,wrn40_2,wrn28_10}]  [...]
+python train.py path=PATH_TO_POLICY_WEIGHT [data.name={cifar10,cifar100,svhn}] [model.name={wrn28_2,wrn40_2,wrn28_10}]  [...]
 ```
+
+When `path` is not specified, training is executed without policy, which can be used as a baseline.
 
 ## Notice
 
-The codebase here is not exactly same as the one used in the paper. For example, this code base does not include the support for `DistributedDataParallel` and the custom `CutOut` kernel. But, we believe this is simpler, more stable and easier to extend.
+The codebase here is not exactly the same as the one used in the paper. 
+For example, this codebase does not include the support for `DistributedDataParallel` and the custom `CutOut` kernel. 
+But, we believe this reimplementation is much simpler, more stable, and easier to extend for your research projects.
 
 ## Citation
 
