@@ -64,10 +64,13 @@ def tensor_function(func):
             img, mag = args
         else:
             img, mag, kernel = args
+
         if not torch.is_tensor(img):
             raise RuntimeError(f'img is expected to be torch.Tensor, but got {type(img)} instead')
+
         if img.dim() == 3:
             img = img.unsqueeze(0)
+
         if torch.is_tensor(mag) and mag.nelement() != 1 and mag.size(0) != img.size(0):
             raise RuntimeError('Shape of `mag` is expected to be `1` or `B`')
 
@@ -201,7 +204,8 @@ def auto_contrast(img: torch.Tensor,
                   _=None) -> torch.Tensor:
     with torch.no_grad():
         # BxCxHxW -> BCxHW
-        reshaped = img.flatten(0, 1).flatten(1, 2) * 255
+        # temporal fix
+        reshaped = img.flatten(0, 1).flatten(1, 2).clamp(0, 1) * 255
         # BCx1
         min, _ = reshaped.min(dim=1, keepdim=True)
         max, _ = reshaped.max(dim=1, keepdim=True)
@@ -247,7 +251,7 @@ def equalize(img: torch.Tensor,
     # see https://github.com/python-pillow/Pillow/blob/master/src/PIL/ImageOps.py#L319
     with torch.no_grad():
         # BCxHxW
-        reshaped = img.clone().flatten(0, 1) * 255
+        reshaped = img.clone().flatten(0, 1).clamp_(0, 1) * 255
         size = reshaped.size(0)  # BC
         # 0th channel [0-255], 1st channel [256-511], 2nd channel [512-767]...(BC-1)th channel
         shifted = reshaped + 256 * torch.arange(0, size, device=reshaped.device,

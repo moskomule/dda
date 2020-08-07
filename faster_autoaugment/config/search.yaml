@@ -1,0 +1,25 @@
+model:
+  cls_factor: 0.1
+  gp_factor: 10
+
+  temperature: 0.05
+  num_sub_policies: 10
+  num_chunks: 8
+  operation_count: 2
+
+data:
+  name: cifar10
+  train_size: 4_000
+  batch_size: 128
+
+  cutout: false
+  download: false
+
+optim:
+  epochs:  20
+
+  main_lr: 1e-3
+  policy_lr: 1e-3
+
+gpu: 0
+seed: 1

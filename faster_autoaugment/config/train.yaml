@@ -1,0 +1,23 @@
+model:
+  name: wrn28_2
+  num_chunks: 16
+
+data:
+  name: cifar10
+  batch_size: 128
+  download: false
+
+optim:
+  epochs: 200
+  lr: 0.1
+  momentum: 0.9
+  weight_decay: 5e-4
+  nesterov: true
+
+  scheduler:
+    mul: 4
+    warmup: 5
+
+gpu: 0
+seed: 1
+path: null
