@@ -125,7 +125,7 @@ def train_and_eval(cfg: BaseConfig):
                      policy=policy,
                      cfg=cfg.model,
                      use_cuda_nonblocking=True) as trainer:
-        for _ in trainer.epoch_iterator(cfg.optim.num_epochs):
+        for _ in trainer.epoch_range(cfg.optim.num_epochs):
             trainer.train(train_loader)
             trainer.test(test_loader)
     print(f"Min. Error Rate: {1 - max(c[1].history['test']):.3f}")

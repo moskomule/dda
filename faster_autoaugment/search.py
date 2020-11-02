@@ -178,7 +178,7 @@ def search(cfg: BaseConfig
                     reporters=[reporters.TensorboardReporter(".")],
                     cfg=cfg.model,
                     use_cuda_nonblocking=True) as trainer:
-        for _ in trainer.epoch_iterator(cfg.optim.epochs):
+        for _ in trainer.epoch_range(cfg.optim.epochs):
             trainer.train(train_loader)
         trainer.save(pathlib.Path(hydra.utils.get_original_cwd()) / 'policy_weights' / cfg.data.name)
 
