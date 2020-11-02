@@ -1,13 +1,13 @@
 import pathlib
 from dataclasses import dataclass
-from typing import Tuple, Mapping, Any
+from typing import Any, Mapping, Tuple
 
 import homura
 import hydra
 import torch
-from homura import trainers, TensorMap, optim, callbacks
+from homura import optim, reporters, trainers
 from homura.vision import DATASET_REGISTRY
-from torch import nn, Tensor
+from torch import Tensor, nn
 from torch.nn import functional as F
 
 from policy import Policy
@@ -38,16 +38,16 @@ class Discriminator(nn.Module):
 class AdvTrainer(trainers.TrainerBase):
     # acknowledge https://github.com/caogang/wgan-gp/blob/master/gan_cifar10.py
     def iteration(self,
-                  data: Tuple[Tensor, Tensor]
-                  ) -> Mapping[str, Tensor]:
+                  data: Tuple[Tensor, Tensor]) -> None:
         # input: [-1, 1]
         input, target = data
         b = input.size(0) // 2
         a_input, a_target = input[:b], target[:b]
         n_input, n_target = input[b:], target[b:]
         loss, d_loss, a_loss = self.wgan_loss(n_input, n_target, a_input, a_target)
-
-        return TensorMap(loss=loss, d_loss=d_loss, a_loss=a_loss)
+        self.reporter.add('loss', loss.detach())
+        self.reporter.add('d_loss', d_loss.detach())
+        self.reporter.add('a_loss', a_loss.detach())
 
     def wgan_loss(self,
                   n_input: Tensor,
@@ -172,18 +172,13 @@ def search(cfg: BaseConfig
                                                          cfg.model.num_chunks)}
     optimizer = {'main': optim.Adam(lr=cfg.optim.main_lr, betas=(0, 0.999)),
                  'policy': optim.Adam(lr=cfg.optim.policy_lr, betas=(0, 0.999))}
-    tqdm = callbacks.TQDMReporter(range(cfg.optim.epochs))
-    c = [callbacks.LossCallback(),  # classification loss
-         callbacks.metric_callback_by_name('d_loss'),  # discriminator loss
-         callbacks.metric_callback_by_name('a_loss'),  # augmentation loss
-         tqdm]
     with AdvTrainer(model,
                     optimizer,
                     F.cross_entropy,
-                    callbacks=c,
+                    reporters=[reporters.TensorboardReporter(".")],
                     cfg=cfg.model,
                     use_cuda_nonblocking=True) as trainer:
-        for _ in tqdm:
+        for _ in trainer.epoch_iterator(cfg.optim.epochs):
             trainer.train(train_loader)
         trainer.save(pathlib.Path(hydra.utils.get_original_cwd()) / 'policy_weights' / cfg.data.name)
 

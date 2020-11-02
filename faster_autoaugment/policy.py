@@ -5,7 +5,7 @@ from copy import deepcopy
 from typing import Optional
 
 import torch
-from torch import nn, Tensor
+from torch import Tensor, nn
 from torch.distributions import Categorical
 
 from dda.operations import *

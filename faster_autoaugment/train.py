@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, Mapping, List
+from typing import List, Mapping, Tuple
 
 import homura
 import hydra
 import torch
-from homura import trainers, TensorMap, callbacks, optim, lr_scheduler
+from homura import lr_scheduler, optim, reporters, trainers
+from homura.metrics import accuracy
 from homura.vision import DATASET_REGISTRY
 from torch import Tensor
 from torch.nn import functional  as F
@@ -37,7 +38,8 @@ class EvalTrainer(trainers.TrainerBase):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-        return TensorMap(loss=loss, output=output)
+        self.reporter.add('loss', loss.detach())
+        self.reporter.add('accuracy', accuracy(output, target))
 
 
 @dataclass
@@ -114,19 +116,16 @@ def train_and_eval(cfg: BaseConfig):
     scheduler = lr_scheduler.CosineAnnealingWithWarmup(cfg.optim.epochs,
                                                        cfg.optim.scheduler.mul,
                                                        cfg.optim.scheduler.warmup)
-    tqdm = callbacks.TQDMReporter(range(cfg.optim.epochs))
-    c = [callbacks.LossCallback(),
-         callbacks.AccuracyCallback(),
-         tqdm]
+
     with EvalTrainer(model,
                      optimizer,
                      F.cross_entropy,
-                     callbacks=c,
+                     reporters=[reporters.TensorboardReporter(".")],
                      scheduler=scheduler,
                      policy=policy,
                      cfg=cfg.model,
                      use_cuda_nonblocking=True) as trainer:
-        for _ in tqdm:
+        for _ in trainer.epoch_iterator(cfg.optim.num_epochs):
             trainer.train(train_loader)
             trainer.test(test_loader)
     print(f"Min. Error Rate: {1 - max(c[1].history['test']):.3f}")

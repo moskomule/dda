@@ -8,7 +8,7 @@ This is the official *re*implementation of FasterAutoAugment ([hataya2020a](http
 * `PyTorch==1.5.0` # Required by `kornia`
 * `torchvision==0.6.0`
 * `kornia==0.3.1`
-* `homura==2020.07` # `pip install -U git+https://github.com/moskomule/homura@v2020.07`
+* `homura==2020.10` # `pip install -U git+https://github.com/moskomule/homura@v2020.10`
 * `hydra==0.11` 
 
 
