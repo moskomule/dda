@@ -1,6 +1,6 @@
 # Faster AutoAugment
 
-This is the official *re*implementation of FasterAutoAugment ([hataya2020a](https://arxiv.org/abs/1911.06987).)
+This is the official *re*implementation of FasterAutoAugment ([hataya2020a](https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123700001.pdf).)
 
 ## Requirements
 

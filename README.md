@@ -64,6 +64,7 @@ To differentiate w.r.t. the probability parameter, `RelaxedBernoulli` is used.
 
 * [Faster AutoAugment](./faster_autoaugment)
 * [RandAugment](./examples)
+* [MADAO](./madao)
 
 ## Citation
 
@@ -79,5 +80,4 @@ If you use `dda` in your academic research, please cite `hataya2020a`.
     booktitle={ECCV}
 }
 
-...
 ```
